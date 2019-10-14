@@ -9,7 +9,7 @@ class AlbumCover extends Component {
     const previewUrl = this.props.track.preview_url;
     return albumImages.length > 0 ? (
       <div>
-        <img src={this.props.track.album.images[1].url}></img>
+        <img src={this.props.track.album.images[1].url} alt={this.props.track.name}></img>
         <Sound url={previewUrl} playStatus={Sound.status.PLAYING} />
       </div>
     ) : (

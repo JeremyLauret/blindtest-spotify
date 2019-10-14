@@ -8,7 +8,7 @@ import Button from "./Button";
 import AlbumCover from "./AlbumCover";
 
 const apiToken =
-  "BQC0jZshX7RTxZ-IIseLkUAONI9K0HxCAj9Jx0X5iTlrtXl0mqAEdFEu2A9yW4yEIIc5wsBzoQO2wo6jdttFWpmm_TGtErIgQT9vIPDRoCLkrXC4s7QZWfckarDbyBA4-FU7VPfb2ShlTIEEKwWhWELLqbe7Sp_LoIRB_3o1r9AO";
+  "BQCsWTH12uxNMAQigfYoGJACptwX9296y0-rEgI4euY1olOV-8mm00mvMx2EIOnOaKmIxsTT694xhspwU5WtCmT0ZS60-STovANNu6wK-jd7fYdbZZjVI4ngag-9BkZLU3jqWeTnQsy-ao1QvPFf_qI5jTK9YyRBXnaOKiHXnBa_";
 
 function shuffleArray(array) {
   let counter = array.length;
@@ -42,8 +42,14 @@ class App extends Component {
 
   loadAnotherTrack() {
     clearTimeout(this.state.timeout);
+    let newTrack = this.state.tracks[getRandomNumber(this.state.tracks.length)]
+      .track;
+    while (newTrack.id === this.state.currentTrack.id) {
+      newTrack = this.state.tracks[getRandomNumber(this.state.tracks.length)]
+        .track;
+    }
     this.setState({
-      currentTrack: this.state.tracks[getRandomNumber(this.state.tracks.length)].track,
+      currentTrack: newTrack,
       timeout: setTimeout(this.loadAnotherTrack.bind(this), 10000)
     });
   }
@@ -75,27 +81,38 @@ class App extends Component {
   }
 
   render() {
-    let track1 = {};
-    let track2 = {};
-    let track3 = {};
-
-    if (this.state.songsLoaded) {
-      track1 = this.state.currentTrack;
-      while (!track2.id || this.state.tracks[track2.id].track.id === track1.id) {
-        track2.id = getRandomNumber(this.state.tracks.length);
-      }
-      track2 = this.state.tracks[track2.id].track;
-      while (
-        !track3.id ||
-        this.state.tracks[track3.id].track.id === track1.id ||
-        this.state.tracks[track3.id].track.id === track2.id
-      ) {
-        track3.id = getRandomNumber(this.state.tracks.length);
-      }
-      track3 = this.state.tracks[track3.id].track;
+    if (!this.state.songsLoaded) {
+      return (
+        <div className="App">
+          <header className="App-header">
+            <img src={logo} className="App-logo" alt="logo" />
+            <h1 className="App-title">Bienvenue sur le Blindtest</h1>
+          </header>
+          <div className="App-images">
+            <img src={loading} className="App-logo" alt="loading" />
+          </div>
+        </div>
+      );
     }
-    let tracks = [track1, track2, track3];
-    tracks = shuffleArray(tracks);
+
+    const track1 = this.state.currentTrack;
+
+    let track2 = this.state.tracks[getRandomNumber(this.state.tracks.length)]
+      .track;
+    while (track2.id === track1.id) {
+      track2 = this.state.tracks[getRandomNumber(this.state.tracks.length)]
+        .track;
+    }
+
+    let track3 = this.state.tracks[getRandomNumber(this.state.tracks.length)]
+      .track;
+    while (track3.id === track1.id || track3.id === track2.id) {
+      track3 = this.state.tracks[getRandomNumber(this.state.tracks.length)]
+        .track;
+    }
+
+    const tracks = [track1, track2, track3];
+    const shuffledTracks = shuffleArray(tracks);
 
     return (
       <div className="App">
@@ -104,15 +121,11 @@ class App extends Component {
           <h1 className="App-title">Bienvenue sur le Blindtest</h1>
         </header>
         <div className="App-images">
-          {this.state.songsLoaded ? (
-            <AlbumCover track={track1} />
-          ) : (
-            <img src={loading} className="App-logo" alt="loading" />
-          )}
+          <AlbumCover track={track1} />
         </div>
         <div className="App-buttons">
-          {tracks.map(track => (
-            <Button onClick={() => this.checkAnswer(track.id)}>
+          {shuffledTracks.map(track => (
+            <Button key={track.name} onClick={() => this.checkAnswer(track.id)}>
               {track.name}
             </Button>
           ))}
